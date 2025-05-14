@@ -1,0 +1,32 @@
+Nama Database: ac_management
+1. Tabel users
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'petugas') NOT NULL
+);
+
+2. Tabel ac_units
+
+CREATE TABLE ac_units (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    location VARCHAR(255) NOT NULL,
+    unit_type VARCHAR(100) NOT NULL,
+    status VARCHAR(50) DEFAULT 'aktif'
+);
+
+3. Tabel maintenance_logs
+
+CREATE TABLE maintenance_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ac_unit_id INT NOT NULL,
+    performed_by INT NOT NULL,
+    date DATE NOT NULL,
+    type VARCHAR(100) NOT NULL,
+    notes TEXT,
+    FOREIGN KEY (ac_unit_id) REFERENCES ac_units(id) ON DELETE CASCADE,
+    FOREIGN KEY (performed_by) REFERENCES users(id) ON DELETE CASCADE
+);
