@@ -1,9 +1,14 @@
 <?php
 class Database {
-    private $host = "localhost";
-    private $dbname = "ac_management";
-    private $username = "root";
-    private $password = "";
+    // private $host = "localhost";
+    // private $dbname = "ac_management";
+    // private $username = "root";
+    // private $password = "";
+    // private $conn;
+    private $host = "sql311.infinityfree.com";
+    private $dbname = "if0_39116059_ac_management";
+    private $username = "if0_39116059";
+    private $password = "TugasUASKBP";
     private $conn;
 
     public function __construct() {
