@@ -1,3 +1,50 @@
+<?php
+session_start();
+
+require_once 'config/Database.php';
+require_once 'classes/User.php';
+
+// Daftar email admin
+$allowedAdminEmails = [
+    'admin@gmail.com',
+    'fajri@gmail.com',
+    'firja@gmail.com'
+];
+
+$error = "";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $email = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+
+        $db = new Database();
+        $user = new User($db);
+
+        // Cek apakah email terdaftar
+        if (!$user->isEmailRegistered($email)) {
+            throw new Exception("Email tidak terdaftar.");
+        }
+
+        if ($user->login($email, $password)) {
+            if (in_array($email, $allowedAdminEmails)) {
+                $_SESSION['is_admin'] = true;
+                header("Location: ADMIN/index.php");
+            } else {
+                $_SESSION['is_admin'] = false;
+                header("Location: TECHNICIANS/index.php");
+            }
+            exit;
+        }
+        else {
+            throw new Exception("Password salah");
+        }
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+    }
+}
+?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -39,18 +86,26 @@
 
         <!-- Login Form -->
         <div class="bg-white py-8 px-6 shadow-lg rounded-lg">
-            <form id="loginForm" class="space-y-6">
+
+            <!-- Cek Email dan sandi -->
+            <?php if ($error): ?>
+                <div class="bg-red-100 text-red-700 p-3 rounded mb-4"><?= $error ?></div>
+            <?php endif; ?>
+
+            <form id="loginForm" method="POST" class="space-y-6">
                 <div class="rounded-md shadow-sm space-y-4">
-                    <!-- Username Field -->
+                    
+                    <!-- Email Field -->
                     <div>
-                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-user text-gray-400"></i>
+                                <i class="fas fa-envelope text-gray-400"></i>
                             </div>
-                            <input id="username" name="username" type="text" required 
+                            <input id="email" name="email" type="email" required 
+                                value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
                                 class="appearance-none block w-full px-10 py-3 border border-gray-300 rounded-md input-focus placeholder-gray-400 focus:outline-none transition duration-150 ease-in-out" 
-                                placeholder="Enter your username">
+                                placeholder="Enter your email">
                         </div>
                     </div>
 
@@ -100,41 +155,6 @@
             const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
             password.setAttribute('type', type);
             this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
-        });
-
-        // Form submission with validation
-        const loginForm = document.getElementById('loginForm');
-        const submitBtn = document.getElementById('submitBtn');
-        
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            // Simple validation
-            if (!username || !password) {
-                loginForm.classList.add('shake');
-                setTimeout(() => loginForm.classList.remove('shake'), 500);
-                return;
-            }
-            
-            // Show loading state
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
-            
-            // Simulate API call
-            setTimeout(() => {
-                // In a real app, you would make an actual API call here
-                console.log('Login attempt with:', { username, password });
-                
-                // Reset button state
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span class="absolute left-0 inset-y-0 flex items-center pl-3"><i class="fas fa-sign-in-alt"></i></span>Sign in';
-                
-                // Redirect to dashboard (simulated)
-                window.location.href = 'dashboard.html';
-            }, 1500);
         });
     </script>
 </body>

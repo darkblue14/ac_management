@@ -1,3 +1,31 @@
+<?php
+require_once 'classes/User.php';
+require_once 'config/Database.php';
+
+$success = "";
+$error = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $db = new Database();           // Buat koneksi
+    $user = new User($db);          // Inject koneksi ke User
+
+    $user->setFullname($_POST['fullname']);
+    $user->setEmail($_POST['email']);
+    $user->setPassword($_POST['password']);
+
+    if ($user->isEmailRegistered($_POST['email'])) {
+        $error = "Email is already registered.";
+    } else {
+        if ($user->save()) {
+            $success = "Account created successfully!";
+        } else {
+            $error = "Failed to register. Please try again.";
+        }
+    }
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,11 +64,16 @@
             </p>
         </div>
 
-        <!-- Sign Up Form -->
-        <div class="bg-white py-8 px-6 shadow-lg rounded-lg">
-            <form id="signupForm" class="space-y-6">
+        <div class="bg-white py-8 px-6 shadow-lg rounded-lg w-full max-w-md">
+            <?php if ($success): ?>
+                <div class="bg-green-100 text-green-700 p-3 rounded mb-4"><?= $success ?></div>
+            <?php elseif ($error): ?>
+                <div class="bg-red-100 text-red-700 p-3 rounded mb-4"><?= $error ?></div>
+            <?php endif; ?>
+
+            <form id="signupForm" action="" method="POST" class="space-y-6">
                 <div class="rounded-md shadow-sm space-y-4">
-                    <!-- Full Name Field -->
+                    <!-- Full Name -->
                     <div>
                         <label for="fullname" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                         <div class="relative">
@@ -48,12 +81,13 @@
                                 <i class="fas fa-user text-gray-400"></i>
                             </div>
                             <input id="fullname" name="fullname" type="text" required 
-                                class="appearance-none block w-full px-10 py-3 border border-gray-300 rounded-md input-focus placeholder-gray-400 focus:outline-none transition duration-150 ease-in-out" 
+                                value="<?= htmlspecialchars($_POST['fullname'] ?? '') ?>"
+                                class="block w-full px-10 py-3 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500" 
                                 placeholder="Enter your full name">
                         </div>
                     </div>
 
-                    <!-- Email Field -->
+                    <!-- Email -->
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                         <div class="relative">
@@ -61,12 +95,13 @@
                                 <i class="fas fa-envelope text-gray-400"></i>
                             </div>
                             <input id="email" name="email" type="email" required 
-                                class="appearance-none block w-full px-10 py-3 border border-gray-300 rounded-md input-focus placeholder-gray-400 focus:outline-none transition duration-150 ease-in-out" 
+                                value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
+                                class="block w-full px-10 py-3 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500" 
                                 placeholder="Enter your email">
                         </div>
                     </div>
 
-                    <!-- Password Field -->
+                    <!-- Password -->
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                         <div class="relative">
@@ -74,7 +109,7 @@
                                 <i class="fas fa-lock text-gray-400"></i>
                             </div>
                             <input id="password" name="password" type="password" required 
-                                class="appearance-none block w-full mb-10 px-10 py-3 border border-gray-300 rounded-md input-focus placeholder-gray-400 focus:outline-none transition duration-150 ease-in-out" 
+                                class="block w-full px-10 py-3 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500" 
                                 placeholder="Create a password">
                             <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
                                 <button type="button" id="togglePassword" class="text-gray-400 hover:text-gray-500 focus:outline-none">
@@ -84,22 +119,23 @@
                         </div>
                     </div>
 
-                <!-- Submit Button -->
-                <div>
-                    <button type="submit" id="submitBtn" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white gradient-bg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
-                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                            <i class="fas fa-user-plus"></i>
-                        </span>
-                        Create Account
-                    </button>
+                    <!-- Submit -->
+                    <div>
+                        <button type="submit" id="submitBtn" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
+                            <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                                <i class="fas fa-user-plus"></i>
+                            </span>
+                            Create Account
+                        </button>
+                    </div>
                 </div>
             </form>
-        </div>
 
-        <!-- Footer Links -->
-        <div class="text-center text-sm text-gray-500 mt-6">
-            <p class="mb-8">Already have an account? <a href="SignIn.php" class="font-medium text-blue-600 hover:text-blue-500">Sign in</a></p>
-            <p class="mt-2">© 2023 AC Management System. All rights reserved.</p>
+            <!-- Footer Links -->
+            <div class="text-center text-sm text-gray-500 mt-6">
+                <p class="mb-8">Already have an account? <a href="SignIn.php" class="font-medium text-blue-600 hover:text-blue-500">Sign In</a></p>
+                <p class="mt-2">© 2023 AC Management System. All rights reserved.</p>
+            </div>
         </div>
     </div>
 
@@ -112,58 +148,6 @@
             const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
             password.setAttribute('type', type);
             this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
-        });
-
-        // Form submission with validation
-        const signupForm = document.getElementById('signupForm');
-        const submitBtn = document.getElementById('submitBtn');
-        
-        signupForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const fullname = document.getElementById('fullname').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const terms = document.getElementById('terms').checked;
-            
-            // Simple validation
-            if (!fullname || !email || !password || !confirmPassword) {
-                signupForm.classList.add('shake');
-                setTimeout(() => signupForm.classList.remove('shake'), 500);
-                alert('Please fill in all fields');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                signupForm.classList.add('shake');
-                setTimeout(() => signupForm.classList.remove('shake'), 500);
-                alert('Passwords do not match');
-                return;
-            }
-            
-            if (!terms) {
-                alert('You must agree to the terms and conditions');
-                return;
-            }
-            
-            // Show loading state
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
-            
-            // Simulate API call
-            setTimeout(() => {
-                // In a real app, you would make an actual API call here
-                console.log('Sign up attempt with:', { fullname, email, password });
-                
-                // Reset button state
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span class="absolute left-0 inset-y-0 flex items-center pl-3"><i class="fas fa-user-plus"></i></span>Create Account';
-                
-                // Redirect to dashboard (simulated)
-                alert('Account created successfully!');
-                window.location.href = 'dashboard.html';
-            }, 1500);
         });
     </script>
 </body>

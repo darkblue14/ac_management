@@ -1,0 +1,45 @@
+Nama Database: ac_management
+1. Tabel users
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fullname VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+2. Tabel maintenance_logs
+
+ CREATE TABLE maintenance_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    unit_id VARCHAR(50),
+    maintenance_date DATE,
+    maintenance_type VARCHAR(50),
+    technician_name VARCHAR(100),
+    work_performed TEXT,
+    photo_path VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+3. Tabel maintenance_schedules
+
+CREATE TABLE maintenance_schedules (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    unit_id VARCHAR(50) NOT NULL,
+    technician_name VARCHAR(100) NOT NULL,
+    maintenance_date DATE NOT NULL,
+    maintenance_type VARCHAR(50) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+4. Tabel ac_units
+
+CREATE TABLE ac_units (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    unit_code VARCHAR(50) NOT NULL UNIQUE,
+    location VARCHAR(100) NOT NULL,
+    status ENUM('Active', 'Inactive') DEFAULT 'Active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
