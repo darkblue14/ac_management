@@ -1,5 +1,7 @@
 <?php
-class ACUnit {
+require_once __DIR__ . '/../classes/BaseModel.php';
+
+class ACUnit extends BaseModel {
     private $unitCode;
     private $location;
     private $status;

@@ -1,8 +1,9 @@
 <?php
 require_once __DIR__ . '/../config/Database.php';
+require_once __DIR__ . '/../classes/BaseModel.php';
 
-class User {
-    private $conn;
+class User extends BaseModel {
+    private $id;
     private $fullname;
     private $email;
     private $password;

@@ -1,5 +1,7 @@
 <?php
-class MaintenanceSchedule {
+require_once __DIR__ . '/../classes/BaseModel.php';
+
+class MaintenanceSchedule extends BaseModel{
     private $unitId;
     private $technicianName;
     private $maintenanceDate;

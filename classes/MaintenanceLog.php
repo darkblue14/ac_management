@@ -1,5 +1,7 @@
 <?php
-class MaintenanceLog {
+require_once __DIR__ . '/../classes/BaseModel.php';
+
+class MaintenanceLog extends BaseModel {
     private $unitId;
     private $maintenanceDate;
     private $maintenanceType;
